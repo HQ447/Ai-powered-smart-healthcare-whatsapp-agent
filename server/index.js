@@ -7,12 +7,14 @@ dotenv.config();
 
 const app = express();
 const PORT =process.env.PORT
-const db_url=process.env.MONGODB_URL
+const db_url=process.env.MONGO_URI
 
 app.use(cors());
 app.use(express.json());
 
-connect_DB(db_url)
+
+
+ connect_DB(db_url)
 
 
 app.get("/", (req, res) => {
