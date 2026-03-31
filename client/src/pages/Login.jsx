@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -17,6 +19,7 @@ function Login() {
     e.preventDefault();
     // The data is stored in the formData object ready to be sent to your API
     console.log('Login API Call with data:', formData);
+    navigate("/dashboard")
   };
 
   return (
@@ -31,7 +34,7 @@ function Login() {
             Sign in to access your dashboard
           </p>
         </div>
-        
+
         {/* Form Section */}
         <div className="p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -98,7 +101,7 @@ function Login() {
               </button>
             </div>
           </form>
-          
+
           <div className="mt-8 relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
@@ -109,7 +112,7 @@ function Login() {
               </span>
             </div>
           </div>
-          
+
           <div className="mt-6 text-center">
             <a href="#" className="font-medium text-teal-600 hover:text-teal-500 transition-colors text-sm">
               Create an account
