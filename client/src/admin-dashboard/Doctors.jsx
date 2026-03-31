@@ -1,22 +1,31 @@
 import React, { useState } from 'react';
 import { Search, Filter, Edit, Trash2, MoreVertical, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
-const mockDoctors = [
-  { id: 1, name: 'Dr. Sarah Connor', specialty: 'Cardiologist', status: 'Active', experience: '10 Yrs', image: 'https://i.pravatar.cc/150?u=1' },
-  { id: 2, name: 'Dr. John Smith', specialty: 'Neurologist', status: 'On Leave', experience: '8 Yrs', image: 'https://i.pravatar.cc/150?u=2' },
-  { id: 3, name: 'Dr. Emily Chen', specialty: 'Pediatrician', status: 'Active', experience: '5 Yrs', image: 'https://i.pravatar.cc/150?u=3' },
-  { id: 4, name: 'Dr. Michael Brown', specialty: 'Orthopedist', status: 'Active', experience: '15 Yrs', image: 'https://i.pravatar.cc/150?u=4' },
-  { id: 5, name: 'Dr. Jessica Taylor', specialty: 'Dermatologist', status: 'Active', experience: '12 Yrs', image: 'https://i.pravatar.cc/150?u=5' },
-];
+
 
 function Doctors() {
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
   const [searchTerm, setSearchTerm] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
+  const [data, setData] = useState([]);
 
-  const filteredDoctors = mockDoctors.filter(doc => {
+  const doctors = async () => {
+    const response = await fetch(`${BASE_URL}/doctor/all`);
+    const data = await response.json();
+    setData(data);
+
+    console.log(data);
+  }
+  useEffect(() => {
+    doctors();
+  }, []);
+
+
+  const filteredDoctors = data.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialty = specialtyFilter === 'All' || doc.specialty === specialtyFilter;
+    const matchesSpecialty = specialtyFilter === 'All' || doc.specialization === specialtyFilter;
     return matchesSearch && matchesSpecialty;
   });
 
@@ -65,9 +74,9 @@ function Doctors() {
               <option value="Dermatologist">Dermatologist</option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                </svg>
+              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
         </div>
@@ -80,41 +89,38 @@ function Doctors() {
             <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
               <th className="py-4 px-6">Doctor Info</th>
               <th className="py-4 px-6">Specialty</th>
-              <th className="py-4 px-6 text-center">Experience</th>
-              <th className="py-4 px-6 text-center">Status</th>
+              <th className="py-4 px-6 text-center">Clinic</th>
+              <th className="py-4 px-6 text-center">Timings</th>
               <th className="py-4 px-6 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
             {filteredDoctors.map(doctor => (
-              <tr key={doctor.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors group">
+              <tr key={doctor._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors group">
                 <td className="py-4 px-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden ring-2 ring-white dark:ring-slate-800 shadow-sm flex-shrink-0">
-                        <img src={doctor.image} alt={doctor.name} className="w-full h-full object-cover" />
+                      <img src="https://i.pravatar.cc/150?u=1" alt={doctor.name} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <div className="font-semibold text-slate-900 dark:text-white">{doctor.name}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">ID: #{doctor.id.toString().padStart(4, '0')}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{doctor.phone}</div>
                     </div>
                   </div>
                 </td>
                 <td className="py-4 px-6">
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
-                    {doctor.specialty}
+                    {doctor.specialization}
                   </span>
                 </td>
                 <td className="py-4 px-6 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {doctor.experience}
+                  <div className="truncate max-w-[150px] mx-auto" title={doctor.clinicName}>{doctor.clinicName}</div>
+                  <div className="text-xs text-slate-500 font-normal mt-0.5">{doctor.city}</div>
                 </td>
                 <td className="py-4 px-6 text-center">
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
-                    doctor.status === 'Active' 
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' 
-                      : 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${doctor.status === 'Active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                    {doctor.status}
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 whitespace-nowrap">
+                    <span className="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>
+                    {doctor.opdStartTime} - {doctor.opdEndTime}
                   </span>
                 </td>
                 <td className="py-4 px-6 text-right">
@@ -146,13 +152,13 @@ function Doctors() {
           </tbody>
         </table>
       </div>
-      
+
       {/* Pagination Footer */}
       <div className="border-t border-slate-100 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between text-sm">
         <span className="text-slate-500 dark:text-slate-400">Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{filteredDoctors.length}</span> results</span>
         <div className="flex gap-1">
-            <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50">Prev</button>
-            <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
+          <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50">Prev</button>
+          <button className="px-3 py-1 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
         </div>
       </div>
     </div>
